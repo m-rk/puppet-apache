@@ -105,6 +105,9 @@
 #   Set one or more proxy and reverse proxy directives. (e.g. '/manager http://localhost:8080/manager'
 #   or ['/manager http://localhost:8080/manager', '/alias3 http://remote.server.com/alias'])
 #
+# [*wordpress_multisite_subdomain*]
+#   Set to true to properly configure the virtualhosts for WordPress multisites with a subdomain
+#
 # == Examples:
 #  apache::vhost { 'site.name.fqdn':
 #    docroot  => '/path/to/docroot',
@@ -127,52 +130,53 @@
 #  }
 #
 define apache::vhost (
-  $server_admin                 = '',
-  $server_name                  = '',
-  $docroot                      = '',
-  $docroot_create               = false,
-  $docroot_owner                = 'root',
-  $docroot_group                = 'root',
-  $port                         = '80',
-  $ip_addr                      = '*',
-  $ssl                          = false,
-  $template                     = 'apache/virtualhost/vhost.conf.erb',
-  $source                       = '',
-  $priority                     = '50',
-  $serveraliases                = '',
-  $env_variables                = '',
-  $passenger                    = false,
-  $passenger_high_performance   = true,
-  $passenger_max_pool_size      = 12,
-  $passenger_pool_idle_time     = 1200,
-  $passenger_max_requests       = 0,
-  $passenger_stat_throttle_rate = 30,
-  $passenger_rack_auto_detect   = true,
-  $passenger_rails_auto_detect  = false,
-  $passenger_rails_env          = '',
-  $passenger_rails_base_uri     = '',
-  $passenger_rack_env           = '',
-  $passenger_rack_base_uri      = '',
-  $enable                       = true,
-  $directoryindex               = '',
-  $directory                    = '',
-  $directory_options            = '',
-  $directory_allow_override     = 'None',
-  $directory_require            = '',
-  $aliases                      = '',
-  $proxy_aliases                = ''
+  $server_admin                  = '',
+  $server_name                   = '',
+  $docroot                       = '',
+  $docroot_create                = false,
+  $docroot_owner                 = 'root',
+  $docroot_group                 = 'root',
+  $port                          = '80',
+  $ip_addr                       = '*',
+  $ssl                           = false,
+  $template                      = 'apache/virtualhost/vhost.conf.erb',
+  $source                        = '',
+  $priority                      = '50',
+  $serveraliases                 = '',
+  $env_variables                 = '',
+  $passenger                     = false,
+  $passenger_high_performance    = true,
+  $passenger_max_pool_size       = 12,
+  $passenger_pool_idle_time      = 1200,
+  $passenger_max_requests        = 0,
+  $passenger_stat_throttle_rate  = 30,
+  $passenger_rack_auto_detect    = true,
+  $passenger_rails_auto_detect   = false,
+  $passenger_rails_env           = '',
+  $passenger_rails_base_uri      = '',
+  $passenger_rack_env            = '',
+  $passenger_rack_base_uri       = '',
+  $enable                        = true,
+  $directoryindex                = '',
+  $directory                     = '',
+  $directory_options             = '',
+  $directory_allow_override      = 'None',
+  $directory_require             = '',
+  $aliases                       = '',
+  $proxy_aliases                 = '',
+  $wordpress_multisite_subdomain = false,
 ) {
 
   $ensure = $enable ? {
-        true => present,
-        false => present,
-        absent => absent,
+    true   => present,
+    false  => present,
+    absent => absent,
   }
-  $bool_docroot_create               = any2bool($docroot_create)
-  $bool_passenger                    = any2bool($passenger)
-  $bool_passenger_high_performance   = any2bool($passenger_high_performance)
-  $bool_passenger_rack_auto_detect   = any2bool($passenger_rack_auto_detect)
-  $bool_passenger_rails_auto_detect  = any2bool($passenger_rails_auto_detect)
+  $bool_docroot_create = any2bool($docroot_create)
+  $bool_passenger = any2bool($passenger)
+  $bool_passenger_high_performance = any2bool($passenger_high_performance)
+  $bool_passenger_rack_auto_detect = any2bool($passenger_rack_auto_detect)
+  $bool_passenger_rails_auto_detect = any2bool($passenger_rails_auto_detect)
 
   $real_docroot = $docroot ? {
     ''      => "${apache::data_dir}/${name}",
@@ -243,11 +247,11 @@ define apache::vhost (
   # Some OS specific settings:
   # On Debian/Ubuntu manages sites-enabled
   case $::operatingsystem {
-    ubuntu,debian,mint: {
+    ubuntu, debian, mint: {
       $file_vhost_link_ensure = $enable ? {
-        true    => $config_file_path,
-        false   => absent,
-        absent  => absent,
+        true   => $config_file_path,
+        false  => absent,
+        absent => absent,
       }
       file { "ApacheVHostEnabled_${name}":
         ensure  => $file_vhost_link_ensure,
@@ -256,7 +260,7 @@ define apache::vhost (
         notify  => $apache::manage_service_autorestart,
       }
     }
-    redhat,centos,scientific,fedora: {
+    redhat, centos, scientific, fedora: {
       include apache::redhat
     }
     default: { }
