@@ -2,8 +2,8 @@
 
 <VirtualHost <%= @ip_addr %>:<%= @port %>>
 <% if @wordpress_multisite_subdomain != false -%>
-    ProxyPassMatch ^/([_0-9a-zA-Z-]+/)?((wp-(content|admin|includes)|webhooks)/.*\.php(/.*)?)$  fcgi://127.0.0.1:9042<%= @real_docroot %>$2
-    ProxyPassMatch ^/([_0-9a-zA-Z-]+/)?(.*\.php(/.*)?)$ fcgi://127.0.0.1:9042<%= @real_docroot %>$2
+    ProxyPassMatch ^/([_0-9a-zA-Z-]+/)?((wp-(content|admin|includes)|webhooks)/.*\.php(/.*)?)$  fcgi://127.0.0.1:9042<%= @real_docroot %>/$2
+    ProxyPassMatch ^/([_0-9a-zA-Z-]+/)?(.*\.php(/.*)?)$ fcgi://127.0.0.1:9042<%= @real_docroot %>/$2
 <% end -%>
     ProxyPassMatch ^/(.*\.php(/.*)?)$ fcgi://127.0.0.1:9042<%= @real_docroot %>/$1
     ServerAdmin <%= @server_admin_email ||= 'webmaster@localhost' %>
@@ -73,8 +73,8 @@
 <% if @ssl != false -%>
 <VirtualHost <%= @ip_addr %>:443>
 <% if @wordpress_multisite_subdomain != false -%>
-    ProxyPassMatch ^/([_0-9a-zA-Z-]+/)?((wp-(content|admin|includes)|webhooks)/.*\.php(/.*)?)$  fcgi://127.0.0.1:9042<%= @real_docroot %>$2
-    ProxyPassMatch ^/([_0-9a-zA-Z-]+/)?(.*\.php(/.*)?)$ fcgi://127.0.0.1:9042<%= @real_docroot %>$2
+    ProxyPassMatch ^/([_0-9a-zA-Z-]+/)?((wp-(content|admin|includes)|webhooks)/.*\.php(/.*)?)$  fcgi://127.0.0.1:9042<%= @real_docroot %>/$2
+    ProxyPassMatch ^/([_0-9a-zA-Z-]+/)?(.*\.php(/.*)?)$ fcgi://127.0.0.1:9042<%= @real_docroot %>/$2
 <% end -%>
     ProxyPassMatch ^/(.*\.php(/.*)?)$ fcgi://127.0.0.1:9042<%= @real_docroot %>/$1
     ServerAdmin <%= @server_admin_email ||= 'webmaster@localhost' %>
